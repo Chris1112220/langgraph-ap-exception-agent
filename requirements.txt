@@ -1,0 +1,12 @@
+# requirements.txt - every Python package the project needs. Install with: pip install -r requirements.txt
+langgraph            # agent framework: the agent's steps as a graph with state
+langchain-google-genai  # connects LangChain/LangGraph to Gemini
+langchain-core
+langsmith            # tracing: see every step the agent takes
+psycopg[binary]      # Postgres driver for Python
+pgvector             # helpers for vector columns
+pydantic             # typed, validated data models
+python-dotenv        # loads .env into environment variables
+fastapi              # Friday: expose the agent as an API
+uvicorn              # web server that runs FastAPI
+pytest               # Saturday: automated tests

@@ -1,0 +1,6 @@
+# Secrets and local files - never commit these
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

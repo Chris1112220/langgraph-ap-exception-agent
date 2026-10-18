@@ -1,0 +1,21 @@
+# docker-compose.yml - describes the services our app needs, so one command starts them all.
+services:
+  db:
+    image: pgvector/pgvector:pg16      # Postgres 16 with the pgvector extension pre-installed
+    container_name: ap_agent_db
+    environment:
+      POSTGRES_USER: ap_agent
+      POSTGRES_PASSWORD: ap_agent_dev  # local dev only - never reuse a real password here
+      POSTGRES_DB: ap_agent
+    ports:
+      - "5433:5432"                    # host 5433 -> container 5432 (5433 avoids clashing with any other Postgres)
+    volumes:
+      - ap_agent_data:/var/lib/postgresql/data   # named volume = data survives container restarts
+      - ./db/init:/docker-entrypoint-initdb.d    # SQL files here run once, on first startup
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ap_agent -d ap_agent"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  ap_agent_data:
