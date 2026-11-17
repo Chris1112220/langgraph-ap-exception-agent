@@ -1,0 +1,19 @@
+# GitHub Actions: runs the tests on every push and pull request.
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # a fresh Linux machine GitHub lends us for each run
+    steps:
+      - uses: actions/checkout@v4  # download the repo onto that machine
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: pytest -q  # no DATABASE_URL or API keys here; tools are fully mocked

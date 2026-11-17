@@ -14,7 +14,7 @@ In real finance automation, RPA handles the happy path. The exceptions (often 10
 | Data | PostgreSQL 16 + pgvector (Docker Compose) |
 | Code | Python 3, Pydantic, psycopg 3 |
 | API (planned) | FastAPI webhook for n8n / UiPath |
-| Quality (planned) | pytest, GitHub Actions CI, LangSmith tracing |
+| Quality | pytest, GitHub Actions CI (LangSmith tracing planned) |
 
 ## What's built so far
 - **Day 1, Data layer:** Postgres + pgvector in Docker, normalized AP schema (vendors, purchase orders, PO lines, receipts, invoices, invoice lines, posted invoices), and an idempotent seed script with 20 realistic exception invoices (price variance, over-billing, missing/typo PO, duplicate, vendor on hold, fuzzy vendor name, prompt injection, approval limit, UOM mismatch, and more).
@@ -26,7 +26,7 @@ In real finance automation, RPA handles the happy path. The exceptions (often 10
 - [ ] Day 3: AP policy RAG (Gemini embeddings + pgvector)
 - [ ] Day 4: LangGraph agent with tool calling, guardrails, and human-in-the-loop approval
 - [ ] Day 5: FastAPI webhook (callable from n8n / UiPath)
-- [ ] Day 6: pytest tests, GitHub Actions CI, LangSmith tracing
+- [x] Day 6: pytest tests and GitHub Actions CI (LangSmith tracing still planned)
 - [ ] Day 7: Deployment + final write-up
 
 ## Run it locally (Windows / PowerShell)
@@ -50,6 +50,9 @@ pip install -r requirements.txt
 # 4. Load the 20 test exception invoices, then try the tools
 python scripts/seed_data.py
 python scripts/try_tools.py
+
+# 5. Run the tests (no database or API keys needed; the suite is fully mocked)
+pytest -q
 ```
 
 ## Project layout
@@ -63,10 +66,25 @@ db/init/
 scripts/
   seed_data.py   # loads vendors, POs, receipts, 20 exceptions
   try_tools.py   # manual check of the tools
+tests/
+  test_tools.py  # mocked unit tests for the agent tools
+.github/workflows/ci.yml
 docker-compose.yml
 requirements.txt
 .env.example
 ```
+
+## Tests and CI
+
+![tests](https://github.com/Chris1112220/langgraph-ap-exception-agent/actions/workflows/ci.yml/badge.svg)
+
+5 pytest tests cover vendor-name and invoice-number normalization, vendor lookup (ID, exact, fuzzy, and miss), three-way match (price variance vs. the 2% tolerance, OCR PO typo, over-billing, missing receipt), and duplicate detection that ignores invoice-number formatting. The database is mocked, so the suite runs with no Postgres and no API keys.
+
+```bash
+pytest -q
+```
+
+GitHub Actions runs the same tests on every push and pull request.
 
 ## Author
 Christopher Roberts, RPA & AI automation developer.
